@@ -103,6 +103,7 @@ jobs:
       s3-key: ${{ needs.release-management.outputs.NEW_TAG}}
     needs: 
       - release-management
+      - upload-app-s3
   create-pull-request:
     runs-on: ubuntu-latest
     name: Create Pull Request
