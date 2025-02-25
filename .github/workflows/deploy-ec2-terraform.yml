@@ -51,8 +51,9 @@ jobs:
             if: steps.config.outputs.terraform__destroy == 'true'
             id: terraform-destroy
     
-            run: cd infra &&
-              terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} &&
+            run: |
+              cd infra
+              terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
               terraform destroy \
                 -var-file="./environments/${{ inputs.environment }}/terraform.tfvars" \
                 -var="app_name=${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__app-name')] }}" \
@@ -62,8 +63,9 @@ jobs:
           - name: Terraform Plan
             if: steps.config.outputs.terraform__destroy != 'true'
             id: terraform-plan
-            run: cd infra &&
-              terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} &&
+            run: |
+              cd infra
+              terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
               terraform plan \ 
                 -var-file="./environments/${{ inputs.environment }}/terraform.tfvars" \
                 -var="app_name=${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__app-name')] }}" \
