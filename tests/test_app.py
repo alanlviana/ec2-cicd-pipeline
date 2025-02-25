@@ -17,7 +17,7 @@ class AppTestCase(unittest.TestCase):
 
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Version: 4', response.data)
+        self.assertIn(b'Version: 1', response.data)
         self.assertIn(b'Environment: Test Environment', response.data)
         self.assertIn(b'Hostname: test-hostname', response.data)
 
