@@ -92,7 +92,7 @@ jobs:
       - name: Upload file to S3
         id: upload-file
         run:
-          S3URI = s3://${{ steps.config.outputs['deploy__aws-deploy-bucket'] }}/${{ needs.release-management.outputs.NEW_TAG }}.zip
+          S3URI=s3://${{ steps.config.outputs['deploy__aws-deploy-bucket'] }}/${{ needs.release-management.outputs.NEW_TAG }}.zip 
           aws s3 cp ${{ needs.release-management.outputs.NEW_TAG }}.zip $S3URI
 
   deploy-dev:
