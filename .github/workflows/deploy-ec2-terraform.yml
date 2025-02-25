@@ -69,7 +69,7 @@ jobs:
               terraform plan \ 
                 -var-file="./environments/${{ inputs.environment }}/terraform.tfvars" \
                 -var="app_name=${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__app-name')] }}" \
-                -var="deployment_group_name=${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__deployment-group-name')] }}" \                
+                -var="deployment_group_name=${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__deployment-group-name')] }}" \
                 -out="${{ inputs.environment }}.plan"
           
           - name: Terraform Apply
