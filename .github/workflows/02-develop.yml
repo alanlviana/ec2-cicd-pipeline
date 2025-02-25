@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  ecs-deployment:
+  ec2-deployment:
     uses: ./.github/workflows/ec2-deployment.yml
     with:
       environment: dev

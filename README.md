@@ -1,4 +1,4 @@
-## ECS CI/CD Pipeline Example
+## EC2 CI/CD Pipeline Example
 
 ![Pipeline GitFlow](docs/pipeline.drawio.png)
 

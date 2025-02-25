@@ -86,7 +86,7 @@ jobs:
 
       - name: Create a zip file
         run: 
-          cd app
+          cd app &&
           zip -r ${{ needs.release-management.outputs.NEW_TAG }}.zip .
       
       - name: Upload file to S3
