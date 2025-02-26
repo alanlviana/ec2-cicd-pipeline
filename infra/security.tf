@@ -1,5 +1,5 @@
 resource "aws_security_group" "lb_sg" {
-    name        = "load_balancer_sg"
+    name        = "load_balancer_sg-${var.app_name}"
     description = "Security group for the load balancer"
     vpc_id      = var.vpc_id
 
@@ -25,12 +25,12 @@ resource "aws_security_group" "lb_sg" {
     }
 
     tags = {
-        Name = "load_balancer_sg"
+        Name = "load_balancer_sg-${var.app_name}"
     }
 }
 
 resource "aws_security_group" "app_sg" {
-    name        = "app_sg"
+    name        = "app_sg-${var.app_name}"
     description = "Security group for the load balancer"
     vpc_id      = var.vpc_id
 
@@ -56,6 +56,6 @@ resource "aws_security_group" "app_sg" {
     }
 
     tags = {
-        Name = "app_sg"
+        Name = "app_sg-${var.app_name}"
     }
 }
