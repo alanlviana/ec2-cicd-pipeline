@@ -1,0 +1,126 @@
+name: "EC2 Deployment"
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      create_release:
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  release-management:
+    name: Release Management
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        id: get_version
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(gh release list --json tagName --order desc --jq '.[0].tagName')
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No tags found. Setting version to 1.0.0"
+            NEW_TAG="1.0.0"
+          else
+            echo "LATEST_TAG: $LATEST_TAG"
+            IFS='.' read -r -a parts <<< "$LATEST_TAG"
+            parts[2]=$((parts[2] + 1))
+            NEW_TAG="${parts[0]}.${parts[1]}.${parts[2]}"
+          fi
+          echo "NEW_TAG: $NEW_TAG"
+          echo "NEW_TAG=$(echo $NEW_TAG)" >> $GITHUB_OUTPUT
+
+      - name: Create or update release branch
+        id: create_or_update_branch
+        env:
+          LATEST_TAG: ${{ steps.get_version.outputs.NEW_TAG }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure git
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git fetch --all
+          if git show-ref --verify --quiet refs/remotes/origin/release/$LATEST_TAG; then
+            echo "Branch release/$LATEST_TAG already exists."
+            git pull origin release/$LATEST_TAG 
+            git checkout release/$LATEST_TAG
+            git merge origin/develop
+          else
+            echo "Branch release/$LATEST_TAG does not exists."
+            git checkout -b release/$LATEST_TAG
+          fi
+          
+          git push origin release/$LATEST_TAG
+    outputs:
+      NEW_TAG: ${{ steps.get_version.outputs.NEW_TAG }}
+
+  upload-app-s3:
+    name: "Upload application to S3"
+    needs: release-management
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - uses: actions-tools/yaml-outputs@v2
+        id: config
+        with:
+          file-path: 'config-pipeline.yml'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-assume-role-arn')  ] }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }}
+
+      - name: Create a zip file
+        run: 
+          cd app &&
+          zip -r ${{ needs.release-management.outputs.NEW_TAG }}.zip .
+      
+      - name: Upload file to S3
+        id: upload-file
+        run:
+          cd app &&
+          S3URI=s3://${{ steps.config.outputs['deploy__aws-deploy-bucket'] }}/${{ needs.release-management.outputs.NEW_TAG }}.zip &&
+          aws s3 cp ${{ needs.release-management.outputs.NEW_TAG }}.zip "$S3URI"
+
+  deploy-dev:
+    name: "[DEV] Deployment"
+    uses: ./.github/workflows/deploy-ec2-terraform.yml
+    with:
+      environment: dev
+      s3-key: ${{ needs.release-management.outputs.NEW_TAG}}
+    needs: 
+      - release-management
+      - upload-app-s3
+  create-pull-request:
+    runs-on: ubuntu-latest
+    name: Create Pull Request
+    needs: 
+      - deploy-dev
+      - release-management
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(gh pr list --base main --head release/${{ needs.release-management.outputs.NEW_TAG }} --json number --jq '.[0].number')"]; then
+            gh pr create --base main --head release/${{ needs.release-management.outputs.NEW_TAG }} --title "Release ${{ needs.release-management.outputs.NEW_TAG }}" --body "This pull request includes the changes for the release version ${{ needs.release-management.outputs.NEW_TAG }}. Please review and merge."
+          else
+            echo "Pull request already exists."
+          fi  
