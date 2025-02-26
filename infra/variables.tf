@@ -14,6 +14,21 @@ variable "deployment_group_name" {
     type        = string
 }
 
+variable "asg_min_size" {
+    description = "The minimum size of ASG"
+    type        = number
+}
+
+variable "asg_max_size" {
+    description = "The maximum size of ASG"
+    type        = number
+}
+
+variable "asg_desired_capacity" {
+    description = "The desired size of ASG"
+    type        = number
+}
+
 variable "instance_ami" {
     description = "The AMI to use for the instance"
     type        = string
