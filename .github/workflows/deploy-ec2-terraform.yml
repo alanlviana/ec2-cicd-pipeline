@@ -83,10 +83,28 @@ jobs:
             if: steps.config.outputs.terraform__destroy != 'true'
             id: codedeploy
             run: |
-              aws deploy create-deployment \
+              DEPLOYMENT_ID=$(aws deploy create-deployment \
                 --application-name ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__app-name')] }} \
                 --deployment-group-name ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__deployment-group-name')] }}    \
                 --s3-location bucket=${{ steps.config.outputs['deploy__aws-deploy-bucket'] }},key=${{ inputs.s3-key }}.zip,bundleType=zip \
-                --region ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }}              
+                --region ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }} )
+              echo "DEPLOYMENT_ID=$(echo $DEPLOYMENT_ID)" >> $GITHUB_OUTPUT
 
+          - name: Create a deployment on CodeDeploy
+            if: steps.config.outputs.terraform__destroy != 'true'
+            id: waitcodedeploy
+            run: |
+              while true; do
+                STATUS=$(aws deploy get-deployment --deployment-id ${{ steps.codedeploy.outputs['DEPLOYMENT_ID'] }} --query 'deploymentInfo.status' --output text)
+                echo "Current Status: $STATUS"
 
+                if [[ "$STATUS" == "Succeeded" ]]; then
+                  echo "Deployment succeeded!"
+                  exit 0
+                elif [[ "$STATUS" == "Failed" || "$STATUS" == "Stopped" ]]; then
+                  echo "Deployment failed!"
+                  exit 1
+                fi
+
+                sleep 10
+              done        
