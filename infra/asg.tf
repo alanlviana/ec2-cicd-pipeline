@@ -22,9 +22,9 @@ resource "aws_autoscaling_group" "asg_app" {
     version = "$Latest"
   }
   
-  min_size             = 1
-  max_size             = 2
-  desired_capacity     = 1
+  min_size             = var.asg_min_size
+  max_size             = var.asg_max_size
+  desired_capacity     = var.asg_desired_capacity
 
   lifecycle {
     create_before_destroy = true
