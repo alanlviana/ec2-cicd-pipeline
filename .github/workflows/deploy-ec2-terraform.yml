@@ -87,7 +87,7 @@ jobs:
                 --application-name ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__app-name')] }} \
                 --deployment-group-name ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__deployment-group-name')] }}    \
                 --s3-location bucket=${{ steps.config.outputs['deploy__aws-deploy-bucket'] }},key=${{ inputs.s3-key }}.zip,bundleType=zip \
-                --region ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }} )
+                --region ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }} --query deploymentId --output text )
               echo "DEPLOYMENT_ID=$(echo $DEPLOYMENT_ID)" >> $GITHUB_OUTPUT
 
           - name: Create a deployment on CodeDeploy
