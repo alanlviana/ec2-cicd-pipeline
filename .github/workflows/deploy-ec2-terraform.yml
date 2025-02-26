@@ -95,7 +95,7 @@ jobs:
             id: waitcodedeploy
             run: |
               while true; do
-                STATUS=$(aws deploy get-deployment --deployment-id ${{ steps.codedeploy.outputs['DEPLOYMENT_ID'] }} --query 'deploymentInfo.status' --output text)
+                STATUS=$(aws deploy get-deployment --deployment-id '${{ steps.codedeploy.outputs['DEPLOYMENT_ID'] }}' --query 'deploymentInfo.status' --output text)
                 echo "Current Status: $STATUS"
 
                 if [[ "$STATUS" == "Succeeded" ]]; then
