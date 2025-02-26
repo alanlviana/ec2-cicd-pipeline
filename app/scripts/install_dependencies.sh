@@ -14,13 +14,3 @@ if ! command -v virtualenv &> /dev/null
 then
     sudo apt install -y python3-virtualenv 
 fi
-
-# Create virtual environment
-cd /home/ubuntu/app
-virtualenv venv
-source venv/bin/activate
-
-# Install app dependencies
-pip install -r requirements.txt
-
-echo "Dependencies installed."
