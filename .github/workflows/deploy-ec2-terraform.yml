@@ -90,7 +90,7 @@ jobs:
                 --region ${{ steps.config.outputs[format('{0}{1}{2}','environments__', inputs.environment,'__aws-region')] }} --query deploymentId --output text )
               echo "DEPLOYMENT_ID=$(echo $DEPLOYMENT_ID)" >> $GITHUB_OUTPUT
 
-          - name: Create a deployment on CodeDeploy
+          - name: Wait CodeDeploy deployment
             if: steps.config.outputs.terraform__destroy != 'true'
             id: waitcodedeploy
             run: |
