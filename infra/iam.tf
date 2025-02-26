@@ -1,5 +1,5 @@
 resource "aws_iam_role" "codedeploy_role" {
-  name = "CodeDeployServiceRole"
+  name = "CodeDeployServiceRole-${var.app_name}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -18,7 +18,7 @@ resource "aws_iam_role_policy_attachment" "codedeploy_attach" {
 }
 
 resource "aws_iam_policy" "codedeploy_asg_policy" {
-  name        = "CodeDeployAutoScalingPolicy"
+  name        = "CodeDeployAutoScalingPolicy-${var.app_name}"
   description = "Permissions for CodeDeploy to manage Auto Scaling Groups"
   policy      = jsonencode({
     Version = "2012-10-17"
@@ -66,7 +66,7 @@ resource "aws_iam_role" "app_ec2_role" {
 }
 
 resource "aws_iam_policy" "ec2_s3_policy" {
-  name        = "EC2CodeDeployS3Policy"
+  name        = "EC2CodeDeployS3Policy-${var.app_name}"
   description = "Permissions for EC2 to connect to S3"
   policy      = jsonencode({
     Version = "2012-10-17"
