@@ -3,6 +3,9 @@ resource "aws_launch_template" "lt_app" {
   image_id             = var.instance_ami
   instance_type        = "t2.micro"
   vpc_security_group_ids = [aws_security_group.app_sg.id]
+  iam_instance_profile {
+    arn = aws_iam_instance_profile.ec2_profile.arn
+  }
 
   user_data = filebase64("${path.module}/resources/userdata.sh")
 
