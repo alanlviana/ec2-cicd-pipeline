@@ -1,12 +1,12 @@
 #!/bin/bash
-apt-get update
-apt-get install -y python3
+sudo apt-get update
+sudo apt-get install -y python3
+sudo apt install ruby-full
+sudo apt install wget
+cd /home/ubuntu
 
 wget https://aws-codedeploy-${var.region}.s3.${var.region}.amazonaws.com/latest/install
 chmod +x ./install
-./install auto
+sudo ./install auto
 systemctl start codedeploy-agent
 systemctl enable codedeploy-agent
-
-echo "Hello World from $(hostname)" > index.html
-nohup python3 -m http.server 80 &
