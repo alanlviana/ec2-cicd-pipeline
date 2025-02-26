@@ -10,9 +10,10 @@ resource "aws_codedeploy_deployment_group" "app_deployment_group" {
   deployment_config_name = "CodeDeployDefault.OneAtATime"
 
   autoscaling_groups = [aws_autoscaling_group.asg_app.name]
+  
 
   deployment_style { 
-    deployment_type = "BLUE_GREEN"
+    deployment_type = "IN_PLACE"
     deployment_option = "WITH_TRAFFIC_CONTROL"
   }
 
