@@ -6,17 +6,17 @@ echo "Installing Python and dependencies..."
 # Install Python and pip if not present
 if ! command -v python3 &> /dev/null
 then
-    sudo yum install -y python3
+    sudo apt install -y python3
 fi
 
 # Install virtualenv if not installed
 if ! command -v virtualenv &> /dev/null
 then
-    pip3 install virtualenv
+    sudo apt install -y python3-virtualenv 
 fi
 
 # Create virtual environment
-cd /home/ec2-user/app
+cd /home/ubuntu/app
 virtualenv venv
 source venv/bin/activate
 

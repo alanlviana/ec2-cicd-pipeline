@@ -3,7 +3,7 @@ set -e
 
 echo "Starting Python app..."
 
-cd /home/ec2-user/app
+cd /home/ubuntu/app
 source venv/bin/activate
 
 # Run the app (assumes Flask)
