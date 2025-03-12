@@ -9,7 +9,7 @@ def index():
     hostname = os.uname()[1]
     return f"""
     <html><head><title>New feature!</title></head><body>
-    <h1>Version: 1</h1>
+    <h1>Version: 2</h1>
     <h1>Environment: {environment}</h1>
     <h1>Hostname: {hostname}</h1>
     </body></html>
